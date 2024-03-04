@@ -12,12 +12,16 @@ BOT_NAME = "broken_links"
 SPIDER_MODULES = ["broken_links.spiders"]
 NEWSPIDER_MODULE = "broken_links.spiders"
 
+SCRAPEOPS_API_KEY = 'e8be2d07-5f35-4b1e-8fbe-a2487e13a6c2' # api from https://scrapeops.io
+SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'
+SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
+SCRAPEOPS_NUM_RESULTS = 50
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = "broken_links (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -50,9 +54,11 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    "broken_links.middlewares.BrokenLinksDownloaderMiddleware": 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+   # "broken_links.middlewares.BrokenLinksDownloaderMiddleware": 543,
+   "broken_links.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
+
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html

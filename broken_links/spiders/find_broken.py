@@ -1,9 +1,27 @@
-from urllib.parse import urlparse
-
 import scrapy
 from scraper_helper import headers, run_spider
+from urllib.parse import urlparse
+import csv
 
-START_PAGE = 'https://www.gilmanscholarship.org'
+site_names = []
+website_urls = []
+
+csv_file = 'sites.csv'
+
+with open(csv_file, newline='') as csvfile:
+    csv_reader = csv.reader(csvfile)
+    
+    # Skip the header row
+    next(csv_reader)
+    
+    # Iterate through each row in the CSV file
+    for row in csv_reader:
+        site_name = row[0]
+        website_url = row[1]
+        
+        # Append the site name and website URL to their respective lists
+        site_names.append(site_name)
+        website_urls.append(website_url)
 
 
 def is_valid_url(url):
@@ -15,21 +33,31 @@ def is_valid_url(url):
 
 
 def follow_this_domain(link):
-    return urlparse(link.strip()).netloc == urlparse(START_PAGE).netloc
-
+    link_domain = urlparse(link.strip()).netloc
+    for website_url in website_urls:
+        if urlparse(website_url).netloc == link_domain:
+            return True
+    return False
 
 class FindBrokenSpider(scrapy.Spider):
-    custom_settings = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36',
-        'ROBOTSTXT_OBEY': False,
-        'RETRY_TIMES': 1
-    }
     name = "find_broken"
+
+    custom_settings = {
+        'FEEDS': {
+            'output.csv': {'format': 'csv', 'overwrite': True},
+        }
+    }
+
+    
 
     handle_httpstatus_list = [i for i in range(400, 600)]
 
     def start_requests(self):
-        yield scrapy.Request(START_PAGE, cb_kwargs={
+
+        for website_url in website_urls:
+            print("Start Scraping"+website_url)
+
+            yield scrapy.Request(website_url, cb_kwargs={
             'source': 'NA',
             'text': 'NA'
         }, errback=self.handle_error)
@@ -86,7 +114,7 @@ class FindBrokenSpider(scrapy.Spider):
             item = dict()
 
             item["Source_Page"] = source
-            item["Link_Text"] = text
+            item["Link_Text"] = text.strip()
             item["Broken_Page_Link"] = response.url
             item["HTTP_Code"] = response.status
             item["External"] = not follow_this_domain(response.url)
