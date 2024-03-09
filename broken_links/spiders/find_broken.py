@@ -3,10 +3,9 @@ from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
 
-site_names = []
-website_urls = []
-
 csv_file = 'sites.csv'
+
+site_dict = {}
 
 with open(csv_file, newline='') as csvfile:
     csv_reader = csv.reader(csvfile)
@@ -20,8 +19,8 @@ with open(csv_file, newline='') as csvfile:
         website_url = row[1]
         
         # Append the site name and website URL to their respective lists
-        site_names.append(site_name)
-        website_urls.append(website_url)
+        site_dict[site_name] = website_url
+        #print(site_dict)
 
 
 def is_valid_url(url):
@@ -34,8 +33,8 @@ def is_valid_url(url):
 
 def follow_this_domain(link):
     link_domain = urlparse(link.strip()).netloc
-    for website_url in website_urls:
-        if urlparse(website_url).netloc == link_domain:
+    for key in site_dict:
+        if urlparse(site_dict[key]).netloc == link_domain:
             return True
     return False
 
@@ -50,21 +49,23 @@ class FindBrokenSpider(scrapy.Spider):
 
     
 
-    handle_httpstatus_list = [i for i in range(400, 600)]
+    handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):
 
-        for website_url in website_urls:
-            print("Start Scraping"+website_url)
+        for key in site_dict:
+            self.logger.info("Start scraping: %s",site_dict[key] )
 
-            yield scrapy.Request(website_url, cb_kwargs={
+            yield scrapy.Request(site_dict[key], cb_kwargs={
             'source': 'NA',
-            'text': 'NA'
+            'text': 'NA',
+            'site':key
         }, errback=self.handle_error)
 
-    def parse(self, response, source, text):
+    def parse(self, response, source, text, site):
         if response.status in self.handle_httpstatus_list:
             item = dict()
+            item["Site Name"] = site
             item["Source_Page"] = source
             item["Link_Text"] = text
             item["Broken_Page_Link"] = response.url
@@ -72,6 +73,15 @@ class FindBrokenSpider(scrapy.Spider):
             item["External"] = not follow_this_domain(response.url)
             yield item
             return  # do not process further for non-200 status codes
+        # else:
+        #     item = dict()
+        #     item["Site Name"] = site
+        #     item["Source_Page"] = source
+        #     item["Link_Text"] = text
+        #     item["Broken_Page_Link"] = response.url
+        #     item["HTTP_Code"] = response.status
+        #     item["External"] = not follow_this_domain(response.url)
+        #     yield item
 
         content_type = response.headers.get("content-type", "").lower()
         self.logger.debug(f'Content type of {response.url} is f{content_type}')
@@ -87,12 +97,14 @@ class FindBrokenSpider(scrapy.Spider):
             if follow_this_domain(link):
                 yield scrapy.Request(link, cb_kwargs={
                     'source': response.url,
-                    'text': text
+                    'text': text,
+                    'site':site
                 }, errback=self.handle_error)
             else:
                 yield scrapy.Request(link, cb_kwargs={
                     'source': response.url,
-                    'text': text
+                    'text': text,
+                    'site':site
                 }, callback=self.parse_external, errback=self.handle_error)
 
     def handle_error(self, failure):
@@ -101,18 +113,19 @@ class FindBrokenSpider(scrapy.Spider):
         request = failure.request
         self.logger.error(f'Unhandled error on {request.url}')
         item = dict()
-        item["Source_Page"] = 'Unknown'
-        item["Link_Text"] = None
+        item["Site Name"] = request.cb_kwargs.get('site')
+        item["Source_Page"] = request.cb_kwargs.get('source')
+        item["Link_Text"] = request.cb_kwargs.get('text')
         item["Broken_Page_Link"] = request.url
         item["HTTP_Code"] = 'DNSLookupError or other unhandled'
         item["External"] = not follow_this_domain(request.url)
         yield item
 
-    def parse_external(self, response, source, text):
+    def parse_external(self, response, source, text, site):
 
         if response.status != 200:
             item = dict()
-
+            item["Site Name"] = site
             item["Source_Page"] = source
             item["Link_Text"] = text.strip()
             item["Broken_Page_Link"] = response.url
