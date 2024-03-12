@@ -12,10 +12,12 @@ BOT_NAME = "broken_links"
 SPIDER_MODULES = ["broken_links.spiders"]
 NEWSPIDER_MODULE = "broken_links.spiders"
 
-SCRAPEOPS_API_KEY = 'e8be2d07-5f35-4b1e-8fbe-a2487e13a6c2' # api from https://scrapeops.io
+SCRAPEOPS_API_KEY = 'ADD YOUR API KEY HERE' # api from https://scrapeops.io
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
-SCRAPEOPS_NUM_RESULTS = 50
+SCRAPEOPS_NUM_RESULTS = 200
+
+SCRAPEOPS_PROXY_ENABLED = True
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = "broken_links (+http://www.yourdomain.com)"
@@ -57,6 +59,7 @@ ROBOTSTXT_OBEY = False
 DOWNLOADER_MIDDLEWARES = {
    # "broken_links.middlewares.BrokenLinksDownloaderMiddleware": 543,
    "broken_links.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
+   #"scrapeops_scrapy_proxy_sdk.scrapeops_scrapy_proxy_sdk.ScrapeOpsScrapyProxySdk" : 725,
 
 }
 
