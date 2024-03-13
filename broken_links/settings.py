@@ -12,7 +12,7 @@ BOT_NAME = "broken_links"
 SPIDER_MODULES = ["broken_links.spiders"]
 NEWSPIDER_MODULE = "broken_links.spiders"
 
-SCRAPEOPS_API_KEY = 'ADD YOUR API KEY HERE' # api from https://scrapeops.io
+SCRAPEOPS_API_KEY = 'e8be2d07-5f35-4b1e-8fbe-a2487e13a6c2' # api from https://scrapeops.io
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
 SCRAPEOPS_NUM_RESULTS = 200
