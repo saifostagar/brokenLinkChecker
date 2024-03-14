@@ -58,7 +58,7 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    # "broken_links.middlewares.BrokenLinksDownloaderMiddleware": 543,
-   "broken_links.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
+   #"broken_links.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
    #"scrapeops_scrapy_proxy_sdk.scrapeops_scrapy_proxy_sdk.ScrapeOpsScrapyProxySdk" : 725,
 
 }

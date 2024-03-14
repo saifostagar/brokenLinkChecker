@@ -2,6 +2,7 @@ import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
+import datetime
 
 csv_file = 'sites.csv'
 
@@ -43,7 +44,7 @@ class FindBrokenSpider(scrapy.Spider):
 
     custom_settings = {
         'FEEDS': {
-            'output.csv': {'format': 'csv', 'overwrite': True},
+            f'Broken_Links_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
         }
     }
 
@@ -67,7 +68,7 @@ class FindBrokenSpider(scrapy.Spider):
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
-            item["Link_Text"] = text
+            item["Link_Text"] = text.strip()
             item["Broken_Page_Link"] = response.url
             item["HTTP_Code"] = response.status
             item["External"] = not follow_this_domain(response.url)
@@ -115,7 +116,7 @@ class FindBrokenSpider(scrapy.Spider):
         item = dict()
         item["Site Name"] = request.cb_kwargs.get('site')
         item["Source_Page"] = request.cb_kwargs.get('source')
-        item["Link_Text"] = request.cb_kwargs.get('text')
+        item["Link_Text"] = request.cb_kwargs.get('text').strip()
         item["Broken_Page_Link"] = request.url
         item["HTTP_Code"] = 'DNSLookupError or other unhandled'
         item["External"] = not follow_this_domain(request.url)

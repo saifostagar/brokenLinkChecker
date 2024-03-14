@@ -3,10 +3,11 @@ import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
+import datetime
 
 
 
-START_PAGE = 'https://www.humphreyfellowship.org'
+START_PAGE = 'https://www.humphreyfellowship.org/'
 
      
 
@@ -31,11 +32,11 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
    
     custom_settings = {
         'FEEDS': {
-            'Humphrey_Broken_Links.csv': {'format': 'csv', 'overwrite': True},
+            f'Humphrey_Broken_Links_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
         }
     }
 
-    skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete']
+    skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete', 'my-profile' ]
 
     
 
@@ -65,10 +66,16 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
 
         driver = webdriver.Chrome(service=s)
 
-        driver.get("https://www.humphreyfellowship.org/login/")
+        login_page_link = START_PAGE+'login/'
 
-        # password = ''
-        # username = ''
+        #print(login_page_link)
+
+        driver.get(login_page_link)
+        
+
+        # username = '' #add user name here
+        # password = '' #add password here
+        
 
         # usernamebox= driver.find_element(by=By.ID, value="user") #user user_login
         # usernamebox.send_keys(username)
@@ -80,20 +87,20 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
         # # recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
         # # solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
-        sleep(60)
+
+        sleep(30)
 
         login = driver.find_element(by=By.ID, value="wp-submit")
         login.click()
         sleep(5)
 
-        try:
-            display_name = driver.find_element(By.CLASS_NAME, "display-name").text
-            if display_name == "Md Saif Ostagar":
-                print("Login successful")
-            else:
-                print("Login failed")
-        except Exception as e:
-            print("Login failed")
+
+        my_account_element = driver.find_element(By.CSS_SELECTOR, "#wp-admin-bar-my-account")
+   
+        if my_account_element:
+            print("Login Successful")
+        else:
+            print("Login Failed")
 
         cookies= driver.get_cookies()
         print(cookies)
@@ -104,7 +111,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
-            item["Link_Text"] = text
+            item["Link_Text"] = text.strip()
             item["Broken_Page_Link"] = response.url
             item["HTTP_Code"] = response.status
             item["External"] = not follow_this_domain(response.url)
@@ -140,7 +147,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
                         'cookies' : cookies
                     }, errback=self.handle_error,cookies=cookies)
                 else:
-                    self.logger.info(f"******************Skipping link with one of the skip keywords: {link}") 
+                    self.logger.info(f"Skipping link with one of the skip keywords: {link}") 
             
             else:
                 yield scrapy.Request(link, cb_kwargs={
@@ -157,7 +164,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
         item = dict()
         item["Site Name"] = request.cb_kwargs.get('site')
         item["Source_Page"] = request.cb_kwargs.get('source')
-        item["Link_Text"] = request.cb_kwargs.get('text')
+        item["Link_Text"] = request.cb_kwargs.get('text').strip()
         item["Broken_Page_Link"] = request.url
         item["HTTP_Code"] = 'DNSLookupError or other unhandled'
         item["External"] = not follow_this_domain(request.url)
