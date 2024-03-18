@@ -1,3 +1,4 @@
 scraper-helper
 Scrapy
 attrs
+selenium
