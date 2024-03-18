@@ -42,14 +42,6 @@ def follow_this_domain(link):
 class FindBrokenImgSpider(scrapy.Spider):
     name = "find_broken_img"
 
-    custom_settings = {
-        'FEEDS': {
-            f'Broken_Img_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
-        }
-    }
-
-    
-
     handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):

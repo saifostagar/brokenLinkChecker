@@ -9,6 +9,7 @@ import datetime
 
 START_PAGE = 'https://www.humphreyfellowship.org/'
 
+site_name = 'Humphrey'
      
 
 def is_valid_url(url):
@@ -29,12 +30,6 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
     
     name = "humphrey_brokenlink"
 
-   
-    custom_settings = {
-        'FEEDS': {
-            f'Humphrey_Broken_Links_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
-        }
-    }
 
     skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete', 'my-profile' ]
 
@@ -51,7 +46,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
         yield scrapy.Request(START_PAGE, cb_kwargs={
             'source': 'NA',
             'text': 'NA',
-            'site': START_PAGE,
+            'site': site_name,
             'cookies' : cookies
         }, errback=self.handle_error,cookies=cookies)
 

@@ -71,9 +71,10 @@ DOWNLOADER_MIDDLEWARES = {
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# ITEM_PIPELINES = {
-#    "broken_links.pipelines.BrokenLinksPipeline": 300,
-# }
+ITEM_PIPELINES = {
+   #"broken_links.pipelines.BrokenLinksPipeline": 300,
+   'broken_links.pipelines.SeparateFilePipeline': 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
