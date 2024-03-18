@@ -3,56 +3,13 @@ import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
+import datetime
 
 
 
-START_PAGE = 'https://www.humphreyfellowship.org'
+START_PAGE = 'https://www.humphreyfellowship.org/'
 
-def run_selenium():
-    from selenium import webdriver
-    from selenium.webdriver.common.by import By
-    from selenium.webdriver.chrome.service import Service
-    from selenium.webdriver.chrome.options import Options
-    from selenium_recaptcha_solver import RecaptchaSolver
-    from time import sleep
-    s = Service('/usr/local/bin/chromedriver')
-
-    driver = webdriver.Chrome(service=s)
-
-    driver.get("https://www.humphreyfellowship.org/login/")
-
-    password = 'ENTER YOUR PASSWORD HERE'
-    username = 'ENTER YOUR USER NAME HERE'
-
-    usernamebox= driver.find_element(by=By.ID, value="user") #user user_login
-    usernamebox.send_keys(username)
-
-    passwordbox= driver.find_element(by=By.ID, value="pass") #pass user_pass
-    passwordbox.send_keys(password)
-
-    # solver = RecaptchaSolver(driver=driver)
-    # recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
-    # solver.click_recaptcha_v2(iframe=recaptcha_iframe)
-
-    sleep(30)
-
-    login = driver.find_element(by=By.ID, value="wp-submit")
-    login.click()
-    sleep(5)
-
-    # try:
-    #     display_name = driver.find_element(By.CLASS_NAME, "display-name").text
-    #     if display_name == "Md Saif Ostagar":
-    #         print("Login successful")
-    #     else:
-    #         print("Login failed")
-    # except Exception as e:
-    #     print("Login failed")
-
-    cookies= driver.get_cookies()
-    print(cookies)
-    return cookies
-
+     
 
 def is_valid_url(url):
     try:
@@ -67,19 +24,19 @@ def follow_this_domain(link):
 
 
 
-class FindBrokenLoginSpider(scrapy.Spider):
-    name = "find_broken_login"
+class HumphreyBrokenLinkSpider(scrapy.Spider):
+    
+    
+    name = "humphrey_brokenlink"
 
-    if START_PAGE=='https://www.humphreyfellowship.org':
-        cookies=run_selenium()
-
+   
     custom_settings = {
         'FEEDS': {
-            'humphrey_output.csv': {'format': 'csv', 'overwrite': True},
+            f'Humphrey_Broken_Links_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
         }
     }
 
-    skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete']
+    skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete', 'my-profile' ]
 
     
 
@@ -87,21 +44,74 @@ class FindBrokenLoginSpider(scrapy.Spider):
 
     def start_requests(self):
 
-        
+        cookies= self.run_selenium()
+
         self.logger.info("Start scraping: %s",START_PAGE )
 
         yield scrapy.Request(START_PAGE, cb_kwargs={
             'source': 'NA',
             'text': 'NA',
-            'site': START_PAGE
-        }, errback=self.handle_error,cookies=self.cookies)
+            'site': START_PAGE,
+            'cookies' : cookies
+        }, errback=self.handle_error,cookies=cookies)
 
-    def parse(self, response, source, text, site):
+    def run_selenium(self):
+        from selenium import webdriver
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.chrome.service import Service
+        from selenium.webdriver.chrome.options import Options
+        from selenium_recaptcha_solver import RecaptchaSolver
+        from time import sleep
+        s = Service('/usr/local/bin/chromedriver')
+
+        driver = webdriver.Chrome(service=s)
+
+        login_page_link = START_PAGE+'login/'
+
+        #print(login_page_link)
+
+        driver.get(login_page_link)
+        
+
+        # username = '' #add user name here
+        # password = '' #add password here
+        
+
+        # usernamebox= driver.find_element(by=By.ID, value="user") #user user_login
+        # usernamebox.send_keys(username)
+
+        # passwordbox= driver.find_element(by=By.ID, value="pass") #pass user_pass
+        # passwordbox.send_keys(password)
+
+        # # solver = RecaptchaSolver(driver=driver)
+        # # recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
+        # # solver.click_recaptcha_v2(iframe=recaptcha_iframe)
+
+
+        sleep(30)
+
+        login = driver.find_element(by=By.ID, value="wp-submit")
+        login.click()
+        sleep(5)
+
+
+        my_account_element = driver.find_element(By.CSS_SELECTOR, "#wp-admin-bar-my-account")
+   
+        if my_account_element:
+            print("Login Successful")
+        else:
+            print("Login Failed")
+
+        cookies= driver.get_cookies()
+        print(cookies)
+        return cookies
+
+    def parse(self, response, source, text, site, cookies):
         if response.status in self.handle_httpstatus_list:
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
-            item["Link_Text"] = text
+            item["Link_Text"] = text.strip()
             item["Broken_Page_Link"] = response.url
             item["HTTP_Code"] = response.status
             item["External"] = not follow_this_domain(response.url)
@@ -133,10 +143,11 @@ class FindBrokenLoginSpider(scrapy.Spider):
                     yield scrapy.Request(link, cb_kwargs={
                         'source': response.url,
                         'text': text,
-                        'site':site
-                    }, errback=self.handle_error,cookies=self.cookies)
+                        'site':site,
+                        'cookies' : cookies
+                    }, errback=self.handle_error,cookies=cookies)
                 else:
-                    self.logger.info(f"******************Skipping link with one of the skip keywords: {link}") 
+                    self.logger.info(f"Skipping link with one of the skip keywords: {link}") 
             
             else:
                 yield scrapy.Request(link, cb_kwargs={
@@ -153,7 +164,7 @@ class FindBrokenLoginSpider(scrapy.Spider):
         item = dict()
         item["Site Name"] = request.cb_kwargs.get('site')
         item["Source_Page"] = request.cb_kwargs.get('source')
-        item["Link_Text"] = request.cb_kwargs.get('text')
+        item["Link_Text"] = request.cb_kwargs.get('text').strip()
         item["Broken_Page_Link"] = request.url
         item["HTTP_Code"] = 'DNSLookupError or other unhandled'
         item["External"] = not follow_this_domain(request.url)
@@ -172,6 +183,5 @@ class FindBrokenLoginSpider(scrapy.Spider):
 
             yield item
 
-
 if __name__ == '__main__':
-    run_spider(FindBrokenLoginSpider)
+    run_spider(HumphreyBrokenLinkSpider)

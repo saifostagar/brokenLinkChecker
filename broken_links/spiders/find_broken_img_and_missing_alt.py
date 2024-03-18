@@ -39,12 +39,12 @@ def follow_this_domain(link):
             return True
     return False
 
-class FindBrokenSpider(scrapy.Spider):
-    name = "find_broken"
+class FindBrokenImgSpider(scrapy.Spider):
+    name = "find_broken_img"
 
     custom_settings = {
         'FEEDS': {
-            f'Broken_Links_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
+            f'Broken_Img_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
         }
     }
 
@@ -59,36 +59,29 @@ class FindBrokenSpider(scrapy.Spider):
 
             yield scrapy.Request(site_dict[key], cb_kwargs={
             'source': 'NA',
-            'text': 'NA',
             'site':key
         }, errback=self.handle_error)
 
-    def parse(self, response, source, text, site):
+    def parse(self, response, source, site):
         if response.status in self.handle_httpstatus_list:
-            item = dict()
-            item["Site Name"] = site
-            item["Source_Page"] = source
-            item["Link_Text"] = text.strip()
-            item["Broken_Page_Link"] = response.url
-            item["HTTP_Code"] = response.status
-            item["External"] = not follow_this_domain(response.url)
-            yield item
             return  # do not process further for non-200 status codes
-        # else:
-        #     item = dict()
-        #     item["Site Name"] = site
-        #     item["Source_Page"] = source
-        #     item["Link_Text"] = text
-        #     item["Broken_Page_Link"] = response.url
-        #     item["HTTP_Code"] = response.status
-        #     item["External"] = not follow_this_domain(response.url)
-        #     yield item
 
         content_type = response.headers.get("content-type", "").lower()
-        self.logger.debug(f'Content type of {response.url} is f{content_type}')
+        #self.logger.debug(f'Content type of {response.url} is f{content_type}')
         if b'text' not in content_type:
             self.logger.info(f'{response.url} is NOT HTML')
             return  # do not process further if not HTML
+        
+        for img in response.xpath('//img'):
+            alt_text = img.xpath('./@alt').get()
+            img_src = response.urljoin(img.xpath('./@src').get())
+
+            yield scrapy.Request(img_src, cb_kwargs={
+                'source': response.url,
+                'alt_text': alt_text,
+                'site' : site
+            }, callback=self.parse_img, errback=self.handle_error)
+
 
         for a in response.xpath('//a'):
             text = a.xpath('./text()').get()
@@ -98,17 +91,17 @@ class FindBrokenSpider(scrapy.Spider):
             if follow_this_domain(link):
                 yield scrapy.Request(link, cb_kwargs={
                     'source': response.url,
-                    'text': text,
                     'site':site
                 }, errback=self.handle_error)
-            else:
-                yield scrapy.Request(link, cb_kwargs={
-                    'source': response.url,
-                    'text': text,
-                    'site':site
-                }, callback=self.parse_external, errback=self.handle_error)
+            
 
     def handle_error(self, failure):
+        # log all failures
+        self.logger.error(repr(failure))
+        request = failure.request
+        self.logger.error(f'Unhandled error on {request.url}')
+
+    def handle_img_error(self, failure):
         # log all failures
         self.logger.error(repr(failure))
         request = failure.request
@@ -116,25 +109,38 @@ class FindBrokenSpider(scrapy.Spider):
         item = dict()
         item["Site Name"] = request.cb_kwargs.get('site')
         item["Source_Page"] = request.cb_kwargs.get('source')
-        item["Link_Text"] = request.cb_kwargs.get('text').strip()
-        item["Broken_Page_Link"] = request.url
+        item["Image_Link"] = request.url
         item["HTTP_Code"] = 'DNSLookupError or other unhandled'
-        item["External"] = not follow_this_domain(request.url)
+        item["Missing Alt"]= 'NA'
+        item["Alt Text"] = 'NA'
+        
         yield item
 
-    def parse_external(self, response, source, text, site):
+
+    def parse_img(self, response, source, alt_text, site):
 
         if response.status != 200:
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
-            item["Link_Text"] = text.strip()
-            item["Broken_Page_Link"] = response.url
+            item["Image_Link"] = response.url
             item["HTTP_Code"] = response.status
-            item["External"] = not follow_this_domain(response.url)
+            item["Missing Alt"]= 'NA'
+            item["Alt Text"] = 'NA'
+
+            yield item
+        
+        else:
+            item = dict()
+            item["Site Name"] = site
+            item["Source_Page"] = source
+            item["Image_Link"] = response.url
+            item["HTTP_Code"] = response.status
+            item["Missing Alt"]= not alt_text
+            item["Alt Text"] = alt_text
 
             yield item
 
 
 if __name__ == '__main__':
-    run_spider(FindBrokenSpider)
+    run_spider(FindBrokenImgSpider)

@@ -12,7 +12,7 @@ BOT_NAME = "broken_links"
 SPIDER_MODULES = ["broken_links.spiders"]
 NEWSPIDER_MODULE = "broken_links.spiders"
 
-SCRAPEOPS_API_KEY = 'ADD YOUR API KEY HERE' # api from https://scrapeops.io
+SCRAPEOPS_API_KEY = '' # api from https://scrapeops.io
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True
 SCRAPEOPS_NUM_RESULTS = 200
@@ -58,7 +58,7 @@ ROBOTSTXT_OBEY = False
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    # "broken_links.middlewares.BrokenLinksDownloaderMiddleware": 543,
-   "broken_links.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
+   #"broken_links.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware": 400,
    #"scrapeops_scrapy_proxy_sdk.scrapeops_scrapy_proxy_sdk.ScrapeOpsScrapyProxySdk" : 725,
 
 }
