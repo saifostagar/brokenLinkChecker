@@ -2,7 +2,6 @@ import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
-import datetime
 
 csv_file = 'sites.csv'
 

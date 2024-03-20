@@ -2,9 +2,6 @@ import requests
 import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
-import csv
-import datetime
-
 
 
 START_PAGE = 'https://www.humphreyfellowship.org/'
