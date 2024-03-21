@@ -2,7 +2,6 @@ import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
-import datetime
 
 csv_file = 'sites.csv'
 
@@ -41,14 +40,6 @@ def follow_this_domain(link):
 
 class FindBrokenImgSpider(scrapy.Spider):
     name = "find_broken_img"
-
-    custom_settings = {
-        'FEEDS': {
-            f'Broken_Img_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.csv': {'format': 'csv', 'overwrite': True},
-        }
-    }
-
-    
 
     handle_httpstatus_list = [i for i in range(400, 999)]
 
