@@ -71,11 +71,10 @@ class FindBrokenImgSpider(scrapy.Spider):
                 'source': response.url,
                 'alt_text': alt_text,
                 'site' : site
-            }, callback=self.parse_img, errback=self.handle_error)
+            }, callback=self.parse_img, errback=self.handle_img_error)
 
 
         for a in response.xpath('//a'):
-            text = a.xpath('./text()').get()
             link = response.urljoin(a.xpath('./@href').get())
             if not is_valid_url(link):
                 return
