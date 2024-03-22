@@ -48,7 +48,7 @@ class SeparateFilePipeline:
     def process_item(self, item, spider):
         site_name = item.get('Site Name')
 
-        if spider.name == "find_broken_img":
+        if spider.name == "find_broken_img" or spider.name == "humphrey_broken_img":
             if site_name not in self.csv_writers:
                 filename = f"{site_name}_Broken_Img_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
                 self.files_name.append(filename)
