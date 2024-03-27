@@ -25,7 +25,7 @@ with open(csv_file, newline='') as csvfile:
 
 allowed_domains = set(urlparse(site_url).netloc for site_url in site_dict.values())
 
-print(allowed_domains)
+#print(allowed_domains)
 
 
 def is_valid_url(url):
@@ -41,7 +41,7 @@ def follow_this_domain(link):
     return link_domain in allowed_domains
 
 class FindBrokenSpider(scrapy.Spider):
-    name = "find_broken"
+    name = "find_broken_links"
 
     handle_httpstatus_list = [i for i in range(400, 999)]
 

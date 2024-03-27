@@ -25,7 +25,7 @@ def follow_this_domain(link):
 class HumphreyBrokenImgSpider(scrapy.Spider):
     
     
-    name = "humphrey_broken_img"
+    name = "humphrey_find_broken_img_and_missing_alt"
 
 
     skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete', 'my-profile' ]

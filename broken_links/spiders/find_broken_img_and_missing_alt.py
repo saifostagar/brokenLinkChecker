@@ -39,7 +39,7 @@ def follow_this_domain(link):
     return False
 
 class FindBrokenImgSpider(scrapy.Spider):
-    name = "find_broken_img"
+    name = "find_broken_img_and_missing_alt"
 
     handle_httpstatus_list = [i for i in range(400, 999)]
 

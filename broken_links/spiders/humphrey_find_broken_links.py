@@ -25,7 +25,7 @@ def follow_this_domain(link):
 class HumphreyBrokenLinkSpider(scrapy.Spider):
     
     
-    name = "humphrey_brokenlink"
+    name = "humphrey_find_broken_links"
 
 
     skip_keywords = ['logout', 'edit', 'directory', 'wp-admin' , 'remove', 'delete', 'my-profile' ]
