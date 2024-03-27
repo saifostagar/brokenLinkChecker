@@ -43,7 +43,7 @@ def follow_this_domain(link):
 class FindBrokenSpider(scrapy.Spider):
     name = "find_broken_links"
 
-    handle_httpstatus_list = [i for i in range(400, 999)]
+    #handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):
 

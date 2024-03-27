@@ -32,7 +32,7 @@ class HumphreyBrokenImgSpider(scrapy.Spider):
 
     
 
-    handle_httpstatus_list = [i for i in range(400, 999)]
+    #handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):
 
@@ -98,8 +98,7 @@ class HumphreyBrokenImgSpider(scrapy.Spider):
         return cookies
 
     def parse(self, response, source, site, cookies):
-        if response.status in self.handle_httpstatus_list:
-            
+        if response.status !=200:
             return  # do not process further for non-200 status codes
         
         content_type = response.headers.get("content-type", "").lower()
@@ -122,7 +121,7 @@ class HumphreyBrokenImgSpider(scrapy.Spider):
         for a in response.xpath('//a'):
             link = response.urljoin(a.xpath('./@href').get())
             if not is_valid_url(link):
-                return
+                continue
             if follow_this_domain(link):
                 if not any(keyword in link.lower() for keyword in self.skip_keywords):
                     yield scrapy.Request(link, cb_kwargs={
