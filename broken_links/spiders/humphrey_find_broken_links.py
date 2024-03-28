@@ -32,7 +32,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
 
     
 
-    #handle_httpstatus_list = [i for i in range(400, 999)]
+    handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):
 
@@ -99,7 +99,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
         return cookies
 
     def parse(self, response, source, text, site, cookies):
-        if response.status !=200:
+        if response.status != 200:
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
@@ -157,6 +157,40 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
                     'text': link_text,
                     'site':site
                 }, callback=self.parse_external, errback=self.handle_error)
+
+        for a in response.xpath('//*[@data-column-clickable]'):
+            link_text = a.xpath('./text()').get()
+            link = response.urljoin(a.xpath('./@data-column-clickable').get())
+            if not is_valid_url(link):
+                if link.startswith('mailto:') or link.startswith('tel:') :
+                    continue
+                item = dict()
+                item["Site Name"] = site
+                item["Source_Page"] = response.url
+                item["Link_Text"] = link_text
+                item["Broken_Page_Link"] = link
+                item["HTTP_Code"] = 'NA'
+                item["External"] = 'NA' #not follow_this_domain(response.url)
+                yield item
+                continue
+            if follow_this_domain(link):
+                if not any(keyword in link.lower() for keyword in self.skip_keywords):
+                    yield scrapy.Request(link, cb_kwargs={
+                        'source': response.url,
+                        'text': link_text,
+                        'site':site,
+                        'cookies' : cookies
+                    }, errback=self.handle_error,cookies=cookies)
+                else:
+                    self.logger.info(f"Skipping link with one of the skip keywords: {link}") 
+            
+            else:
+                yield scrapy.Request(link, cb_kwargs={
+                    'source': response.url,
+                    'text': link_text,
+                    'site':site
+                }, callback=self.parse_external, errback=self.handle_error)
+
 
     def handle_error(self, failure):
         # log all failures

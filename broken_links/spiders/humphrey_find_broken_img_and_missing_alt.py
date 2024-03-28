@@ -32,7 +32,7 @@ class HumphreyBrokenImgSpider(scrapy.Spider):
 
     
 
-    #handle_httpstatus_list = [i for i in range(400, 999)]
+    handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):
 

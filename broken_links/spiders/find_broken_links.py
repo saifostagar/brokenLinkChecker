@@ -43,7 +43,7 @@ def follow_this_domain(link):
 class FindBrokenSpider(scrapy.Spider):
     name = "find_broken_links"
 
-    #handle_httpstatus_list = [i for i in range(400, 999)]
+    handle_httpstatus_list = [i for i in range(400, 999)]
 
     def start_requests(self):
 
@@ -87,7 +87,7 @@ class FindBrokenSpider(scrapy.Spider):
             link_text = a.xpath('./text()').get()
             link = response.urljoin(a.xpath('./@href').get())
             if not is_valid_url(link):
-                if link.startswith('mailto:') or link.startswith('tel:') :
+                if link.startswith('mailto:') or link.startswith('tel:') or link.startswith('javascript') :
                     continue
                 item = dict()
                 item["Site Name"] = site
