@@ -1,3 +1,17 @@
+# # Define your item pipelines here
+# #
+# # Don't forget to add your pipeline to the ITEM_PIPELINES setting
+# # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+
+
+# # useful for handling different item types with a single interface
+# from itemadapter import ItemAdapter
+
+
+# class BrokenLinksPipeline:
+#     def process_item(self, item, spider):
+#         return item
+
 from scrapy.exceptions import DropItem
 import csv
 import datetime
@@ -48,7 +62,7 @@ class SeparateFilePipeline:
     def process_item(self, item, spider):
         site_name = item.get('Site Name')
 
-        if spider.name == "find_broken_img":
+        if spider.name == "find_broken_img_and_missing_alt" or spider.name == "humphrey_find_broken_img_and_missing_alt":
             if site_name not in self.csv_writers:
                 filename = f"{site_name}_Broken_Img_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
                 self.files_name.append(filename)
@@ -58,7 +72,7 @@ class SeparateFilePipeline:
                 writer.writeheader()
                 self.csv_writers[site_name] = (csv_file, writer)
 
-        if spider.name == "find_broken" or spider.name == "humphrey_brokenlink":
+        if spider.name == "find_broken_links" or spider.name == "humphrey_find_broken_links":
             if site_name not in self.csv_writers:
                 filename = f"{site_name}_Broken_Links_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
                 self.files_name.append(filename)

@@ -23,6 +23,10 @@ with open(csv_file, newline='') as csvfile:
         site_dict[site_name] = website_url
         #print(site_dict)
 
+allowed_domains = set(urlparse(site_url).netloc for site_url in site_dict.values())
+
+#print(allowed_domains)
+
 
 def is_valid_url(url):
     try:
@@ -34,13 +38,10 @@ def is_valid_url(url):
 
 def follow_this_domain(link):
     link_domain = urlparse(link.strip()).netloc
-    for key in site_dict:
-        if urlparse(site_dict[key]).netloc == link_domain:
-            return True
-    return False
+    return link_domain in allowed_domains
 
 class FindBrokenSpider(scrapy.Spider):
-    name = "find_broken"
+    name = "find_broken_links"
 
     handle_httpstatus_list = [i for i in range(400, 999)]
 
@@ -56,11 +57,11 @@ class FindBrokenSpider(scrapy.Spider):
         }, errback=self.handle_error)
 
     def parse(self, response, source, text, site):
-        if response.status in self.handle_httpstatus_list:
+        if response.status != 200:
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
-            item["Link_Text"] = text.strip()
+            item["Link_Text"] = text
             item["Broken_Page_Link"] = response.url
             item["HTTP_Code"] = response.status
             item["External"] = not follow_this_domain(response.url)
@@ -83,20 +84,30 @@ class FindBrokenSpider(scrapy.Spider):
             return  # do not process further if not HTML
 
         for a in response.xpath('//a'):
-            text = a.xpath('./text()').get()
+            link_text = a.xpath('./text()').get()
             link = response.urljoin(a.xpath('./@href').get())
             if not is_valid_url(link):
-                return
+                if link.startswith('mailto:') or link.startswith('tel:') or link.startswith('javascript') :
+                    continue
+                item = dict()
+                item["Site Name"] = site
+                item["Source_Page"] = response.url
+                item["Link_Text"] = link_text
+                item["Broken_Page_Link"] = link
+                item["HTTP_Code"] = 'NA'
+                item["External"] = 'invalid' #not follow_this_domain(response.url)
+                yield item
+                continue
             if follow_this_domain(link):
                 yield scrapy.Request(link, cb_kwargs={
                     'source': response.url,
-                    'text': text,
+                    'text': link_text,
                     'site':site
                 }, errback=self.handle_error)
             else:
                 yield scrapy.Request(link, cb_kwargs={
                     'source': response.url,
-                    'text': text,
+                    'text': link_text,
                     'site':site
                 }, callback=self.parse_external, errback=self.handle_error)
 
@@ -108,7 +119,7 @@ class FindBrokenSpider(scrapy.Spider):
         item = dict()
         item["Site Name"] = request.cb_kwargs.get('site')
         item["Source_Page"] = request.cb_kwargs.get('source')
-        item["Link_Text"] = request.cb_kwargs.get('text').strip()
+        item["Link_Text"] = request.cb_kwargs.get('text')
         item["Broken_Page_Link"] = request.url
         item["HTTP_Code"] = 'DNSLookupError or other unhandled'
         item["External"] = not follow_this_domain(request.url)
@@ -120,7 +131,7 @@ class FindBrokenSpider(scrapy.Spider):
             item = dict()
             item["Site Name"] = site
             item["Source_Page"] = source
-            item["Link_Text"] = text.strip()
+            item["Link_Text"] = text
             item["Broken_Page_Link"] = response.url
             item["HTTP_Code"] = response.status
             item["External"] = not follow_this_domain(response.url)

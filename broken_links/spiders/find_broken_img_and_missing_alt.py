@@ -3,6 +3,7 @@ from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
 
+
 csv_file = 'sites.csv'
 
 site_dict = {}
@@ -22,6 +23,10 @@ with open(csv_file, newline='') as csvfile:
         site_dict[site_name] = website_url
         #print(site_dict)
 
+allowed_domains = set(urlparse(site_url).netloc for site_url in site_dict.values())
+
+#print(allowed_domains)
+
 
 def is_valid_url(url):
     try:
@@ -33,13 +38,10 @@ def is_valid_url(url):
 
 def follow_this_domain(link):
     link_domain = urlparse(link.strip()).netloc
-    for key in site_dict:
-        if urlparse(site_dict[key]).netloc == link_domain:
-            return True
-    return False
+    return link_domain in allowed_domains
 
 class FindBrokenImgSpider(scrapy.Spider):
-    name = "find_broken_img"
+    name = "find_broken_img_and_missing_alt"
 
     handle_httpstatus_list = [i for i in range(400, 999)]
 
@@ -54,7 +56,7 @@ class FindBrokenImgSpider(scrapy.Spider):
         }, errback=self.handle_error)
 
     def parse(self, response, source, site):
-        if response.status in self.handle_httpstatus_list:
+        if response.status !=200:
             return  # do not process further for non-200 status codes
 
         content_type = response.headers.get("content-type", "").lower()
@@ -71,14 +73,13 @@ class FindBrokenImgSpider(scrapy.Spider):
                 'source': response.url,
                 'alt_text': alt_text,
                 'site' : site
-            }, callback=self.parse_img, errback=self.handle_error)
+            }, callback=self.parse_img, errback=self.handle_img_error)
 
 
         for a in response.xpath('//a'):
-            text = a.xpath('./text()').get()
             link = response.urljoin(a.xpath('./@href').get())
             if not is_valid_url(link):
-                return
+                continue
             if follow_this_domain(link):
                 yield scrapy.Request(link, cb_kwargs={
                     'source': response.url,

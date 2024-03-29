@@ -1,0 +1,18 @@
+name: Run Scrapy Crawl
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # Runs every day at midnight UTC
+
+jobs:
+  scrapy_crawl:
+    name: Run Scrapy Crawl
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Run Broken Links
+      run: scrapy crawl find_broken_links
+
+    - name: Run Broken Image
+      run: scrapy crawl find_broken_img_and_missing_alt
