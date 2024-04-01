@@ -78,9 +78,9 @@ class FindBrokenSpider(scrapy.Spider):
         #     yield item
 
         content_type = response.headers.get("content-type", "").lower()
-        self.logger.debug(f'Content type of {response.url} is f{content_type}')
+        #self.logger.debug(f'Content type of {response.url} is f{content_type}')
         if b'text' not in content_type:
-            self.logger.info(f'{response.url} is NOT HTML')
+            #self.logger.info(f'{response.url} is NOT HTML')
             return  # do not process further if not HTML
 
         for a in response.xpath('//a'):
