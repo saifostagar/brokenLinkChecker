@@ -7,6 +7,9 @@ on:
 env:
   SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
   SCRIPT_PASS: ${{ secrets.SCRIPT_PASS }}
+  SMTP_HOST: ${{ secrets.SMTP_HOST }}
+  SMTP_PORT: ${{ secrets.SMTP_PORT }}
+  
 
 jobs:
   install:

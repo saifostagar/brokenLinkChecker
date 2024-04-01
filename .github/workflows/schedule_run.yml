@@ -4,6 +4,13 @@ on:
   schedule:
     - cron: "0 0 * * *" # Runs every day at midnight UTC
 
+env:
+  SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
+  SCRIPT_PASS: ${{ secrets.SCRIPT_PASS }}
+  SMTP_HOST: ${{ secrets.SMTP_HOST }}
+  SMTP_PORT: ${{ secrets.SMTP_PORT }}
+  
+
 jobs:
   install:
     name: Install Dependencies
