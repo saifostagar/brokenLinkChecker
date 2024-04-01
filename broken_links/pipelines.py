@@ -50,7 +50,7 @@ class SeparateFilePipeline:
             msg.add_attachment(data, filename=file_name)
         
         try:
-            with smtplib.SMTP_SSL('smtp.roundcube.com', 465) as server:
+            with smtplib.SMTP_SSL('smtp.roundcube.com', 290) as server:
                 server.login(config.EMAIL_USER, config.EMAIL_PASS)
                 server.send_message(msg)
                 server.quit()
