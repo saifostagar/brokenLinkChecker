@@ -50,7 +50,7 @@ class SeparateFilePipeline:
             msg.add_attachment(data, filename=file_name)
         
         try:
-            with smtplib.SMTP('smtp.gmail.com', 465) as server:
+            with smtplib.SMTP('smtp.gmail.com', 587) as server:
                 server.starttls()
                 server.login(config.EMAIL_USER, config.EMAIL_PASS)
                 server.send_message(msg)
