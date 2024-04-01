@@ -6,3 +6,5 @@ SMTP_HOST = os.getenv('SMTP_HOST')
 SMTP_PORT= os.getenv('SMTP_PORT')
 EMAIL_TO = 'saifostagar@gmail.com'
 print(EMAIL_USER)
+print(SMTP_HOST)
+print(SMTP_PORT)
