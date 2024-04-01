@@ -38,23 +38,22 @@ class SeparateFilePipeline:
         self.send_mail()
 
     def send_mail(self):
+        msg = EmailMessage()
+        msg['From'] = config.EMAIL_USER
+        msg['To'] = config.EMAIL_TO
+        msg['Subject'] = "Report of Broken Links"
+        msg.set_content("This is a Test Mail. This is Mail Body")
+
+        for file_name in self.files_name:
+            with open(file_name, 'r') as f:
+                data = f.read()
+            msg.add_attachment(data, filename=file_name)
+        
         try:
-            msg = EmailMessage()
-            msg['From'] = config.EMAIL_USER
-            msg['To'] = config.EMAIL_TO
-            msg['Subject'] = "Report of Broken Links"
-            msg.set_content("This is a Test Mail. This is Mail Body")
-
-            for file_name in self.files_name:
-                with open(file_name, 'r') as f:
-                    data = f.read()
-                msg.add_attachment(data, filename=file_name)
-
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
-            server.login(config.EMAIL_USER, config.EMAIL_PASS)
-            server.send_message(msg)
-            server.quit()
+            with smtplib.SMTP_SSL(config.SMTP_HOST, config.SMTP_PORT) as server:
+                server.login(config.EMAIL_USER, config.EMAIL_PASS)
+                server.send_message(msg)
+                server.quit()
             print("Email sent successfully")
         except Exception as e:
             print(f"An error occurred while sending the email: {e}")
