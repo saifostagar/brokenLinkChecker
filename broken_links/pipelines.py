@@ -51,6 +51,7 @@ class SeparateFilePipeline:
         
         try:
             with smtplib.SMTP_SSL(config.SMTP_HOST, config.SMTP_PORT) as server:
+                server.connect(config.SMTP_HOST, config.SMTP_PORT)
                 server.login(config.EMAIL_USER, config.EMAIL_PASS)
                 server.send_message(msg)
                 server.quit()
