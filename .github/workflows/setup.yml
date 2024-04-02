@@ -7,6 +7,7 @@ on:
 env:
   SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
   SCRIPT_PASS: ${{ secrets.SCRIPT_PASS }}
+  HUMPHREY_COOKIE: ${{ secrets.HUMPHREY_COOKIE }}
   
 
 jobs:
@@ -29,7 +30,4 @@ jobs:
         pip install -r requirements.txt
     
     - name: Run Broken Links
-      run: scrapy crawl find_broken_links
-  
-    - name: Run Broken Image
-      run: scrapy crawl find_broken_img_and_missing_alt
+      run: scrapy crawl humphrey_find_broken_links
