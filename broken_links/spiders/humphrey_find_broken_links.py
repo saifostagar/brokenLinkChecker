@@ -38,6 +38,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
     def start_requests(self):
 
         cookies= os.getenv('HUMPHREY_COOKIE')
+        print(cookies)
 
         self.logger.info("Start scraping: %s",START_PAGE )
 

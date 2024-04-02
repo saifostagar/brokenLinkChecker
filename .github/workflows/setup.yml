@@ -29,5 +29,5 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Run Broken Links
+    - name: Run Humphrey Broken Links
       run: scrapy crawl humphrey_find_broken_links
