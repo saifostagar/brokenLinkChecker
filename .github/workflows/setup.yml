@@ -3,7 +3,7 @@ name: Install Dependencies
 on:
   push:
     branches:
-      - '*'
+      - dev_humphrey_auto
 env:
   SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
   SCRIPT_PASS: ${{ secrets.SCRIPT_PASS }}
