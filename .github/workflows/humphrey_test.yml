@@ -1,12 +1,14 @@
-name: Install Dependencies
+name: Run Script on Push to dev_humphrey_auto
 
 on:
   push:
     branches:
-      - '*'
+      - dev_humphrey_auto
+
 env:
   SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
   SCRIPT_PASS: ${{ secrets.SCRIPT_PASS }}
+  HUMPHREY_COOKIE: ${{ secrets.HUMPHREY_COOKIE }}
   
 
 jobs:
@@ -27,9 +29,6 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    
-    - name: Run Broken Links
-      run: scrapy crawl find_broken_links
-  
-    - name: Run Broken Image
-      run: scrapy crawl find_broken_img_and_missing_alt
+      
+    - name: Run Humphrey Broken LInk
+      run: scrapy crawl humphrey_find_broken_links

@@ -29,9 +29,6 @@ jobs:
         pip install -r requirements.txt
     
     - name: Run Broken Links
-      run: python config.py
-    
-    - name: Run Broken Links
       run: scrapy crawl find_broken_links
   
     - name: Run Broken Image
