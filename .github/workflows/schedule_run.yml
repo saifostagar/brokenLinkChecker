@@ -2,7 +2,7 @@ name: Run Scrapy Crawl
 
 on:
   schedule:
-    - cron: "0 0 * * *" # Runs every day at midnight UTC
+    - cron: "0 0 * * 1,4" # Runs every day at midnight UTC
 
 env:
   SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
