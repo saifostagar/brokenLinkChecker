@@ -28,7 +28,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Run Broken Links
+    - name: Check Mail Recipients
       run: python config.py
     
     - name: Run Broken Links
