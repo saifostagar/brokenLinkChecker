@@ -35,13 +35,18 @@ class SeparateFilePipeline:
     def close_spider(self, spider):
         for csv_file, _ in self.csv_writers.values():
             csv_file.close()
-        self.send_mail()
+        self.send_mail(spider)
 
-    def send_mail(self):
+    def send_mail(self,spider):
         msg = EmailMessage()
         msg['From'] = config.EMAIL_USER
         msg['To'] = config.EMAIL_TO
-        msg['Subject'] = "Report of Broken Links"
+        if spider.name == "find_broken_img_and_missing_alt":
+            msg['Subject'] = "AAPA/Gilman Broken images and missing alt texts"
+        elif spider.name == "find_broken_links":
+            msg['Subject'] = "AAPA/Gilman Broken images and missing alt texts"
+        else:
+            msg['Subject'] = "Automation Report"
         msg.set_content("This is a Test Mail. This is Mail Body")
 
         for file_name in self.files_name:
@@ -63,7 +68,7 @@ class SeparateFilePipeline:
 
         if spider.name == "find_broken_img_and_missing_alt" or spider.name == "humphrey_find_broken_img_and_missing_alt":
             if site_name not in self.csv_writers:
-                filename = f"{site_name}_Broken_Img_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
+                filename = f"{site_name}_Broken_Img_{datetime.datetime.now().strftime('%d/%m/%Y')}.csv"
                 self.files_name.append(filename)
                 csv_file = open(filename, 'w', newline='', encoding='utf-8')
                 fieldnames = ['Source_Page', 'Image_Link', 'HTTP_Code', 'Missing Alt', 'Alt Text']
@@ -73,7 +78,7 @@ class SeparateFilePipeline:
 
         if spider.name == "find_broken_links" or spider.name == "humphrey_find_broken_links":
             if site_name not in self.csv_writers:
-                filename = f"{site_name}_Broken_Links_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
+                filename = f"{site_name}_Broken_Links_{datetime.datetime.now().strftime('%d/%m/%Y')}.csv"
                 self.files_name.append(filename)
                 csv_file = open(filename, 'w', newline='', encoding='utf-8')
                 fieldnames = ['Source_Page', 'Link_Text', 'Broken_Page_Link', 'HTTP_Code', 'External']
