@@ -42,12 +42,16 @@ class SeparateFilePipeline:
         msg['From'] = config.EMAIL_USER
         msg['To'] = config.EMAIL_TO
         if spider.name == "find_broken_img_and_missing_alt":
-            msg['Subject'] = "AAPA/Gilman Broken images and missing alt texts"
+            msg['Subject'] = "AAPA/Gilman Broken images and missing alt text"
         elif spider.name == "find_broken_links":
-            msg['Subject'] = "AAPA/Gilman Broken images and missing alt texts"
+            msg['Subject'] = "AAPA/Gilman Broken links"
+        elif spider.name == "humphrey_find_broken_img_and_missing_alt":
+            msg['Subject'] = "Humphrey Broken images and missing alt text"
+        elif spider.name == "humphrey_find_broken_links":
+            msg['Subject'] = "Humphrey Broken links"
         else:
             msg['Subject'] = "Automation Report"
-        msg.set_content("This is a Test Mail. This is Mail Body")
+        msg.set_content("")
 
         for file_name in self.files_name:
             with open(file_name, 'r') as f:
