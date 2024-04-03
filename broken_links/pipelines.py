@@ -68,7 +68,7 @@ class SeparateFilePipeline:
 
         if spider.name == "find_broken_img_and_missing_alt" or spider.name == "humphrey_find_broken_img_and_missing_alt":
             if site_name not in self.csv_writers:
-                filename = f"{site_name}_Broken_Img_{datetime.datetime.now().strftime('%d/%m/%Y')}.csv"
+                filename = f"{site_name}_Broken_Img_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
                 self.files_name.append(filename)
                 csv_file = open(filename, 'w', newline='', encoding='utf-8')
                 fieldnames = ['Source_Page', 'Image_Link', 'HTTP_Code', 'Missing Alt', 'Alt Text']
@@ -78,7 +78,7 @@ class SeparateFilePipeline:
 
         if spider.name == "find_broken_links" or spider.name == "humphrey_find_broken_links":
             if site_name not in self.csv_writers:
-                filename = f"{site_name}_Broken_Links_{datetime.datetime.now().strftime('%d/%m/%Y')}.csv"
+                filename = f"{site_name}_Broken_Links_{datetime.datetime.now().strftime('%Y%m%d')}.csv"
                 self.files_name.append(filename)
                 csv_file = open(filename, 'w', newline='', encoding='utf-8')
                 fieldnames = ['Source_Page', 'Link_Text', 'Broken_Page_Link', 'HTTP_Code', 'External']
