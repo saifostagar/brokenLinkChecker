@@ -47,8 +47,8 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
             'source': 'NA',
             'text': 'NA',
             'site': site_name,
-            'cookies' : cookies
-        }, errback=self.handle_error,cookies=cookies)
+            'cookies' : self.cookies
+        }, errback=self.handle_error,cookies=self.cookies)
 
     # def run_selenium(self):
     #     from selenium import webdriver
