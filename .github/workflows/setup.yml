@@ -7,7 +7,7 @@ on:
 env:
   SCRIPT_EMAIL: ${{ secrets.SCRIPT_EMAIL }}
   SCRIPT_PASS: ${{ secrets.SCRIPT_PASS }}
-  HUMPHREY_COOKIE: ${{ secrets.HUMPHREY_COOK }}
+  HUMPHREY_COOKIE: ${{ secrets.HUMPHREY_COOKIE }}
   
 
 jobs:

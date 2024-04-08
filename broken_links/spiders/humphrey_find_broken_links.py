@@ -39,7 +39,7 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
 
         cookies={}
 
-        cookies['wordpress_logged_in_3cd690aa3c8cf1a5ec4558652b9842b6']= 'md_saif%7C1712734566%7C9gW9Nql6terZXcJQX7AWTDZFTHtNegtt4ZTIZyYfZEV%7C76cc0b3cf90d8b2a52d266396168749ed73f83aebb4540cd6040882fb7b3ad37'
+        cookies['wordpress_logged_in_3cd690aa3c8cf1a5ec4558652b9842b6']= os.getenv('HUMPHREY_COOKIE')
 
         self.logger.info("Start scraping: %s",START_PAGE )
 
@@ -47,8 +47,8 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
             'source': 'NA',
             'text': 'NA',
             'site': site_name,
-            'cookies' : self.cookies
-        }, errback=self.handle_error,cookies=self.cookies)
+            'cookies' : cookies
+        }, errback=self.handle_error,cookies=cookies)
 
     # def run_selenium(self):
     #     from selenium import webdriver
