@@ -34,3 +34,6 @@ jobs:
      
     - name: Run Broken Image
       run: scrapy crawl humphrey_find_broken_img_and_missing_alt
+
+    - name: Run Broken Link
+      run: scrapy crawl humphrey_find_broken_links

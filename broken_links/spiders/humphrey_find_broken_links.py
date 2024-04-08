@@ -2,6 +2,7 @@ import requests
 import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
+import os
 
 
 START_PAGE = 'https://www.humphreyfellowship.org/'
@@ -36,7 +37,9 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
 
     def start_requests(self):
 
-        cookies= self.run_selenium()
+        cookies={}
+
+        cookies['wordpress_logged_in_3cd690aa3c8cf1a5ec4558652b9842b6']= 'md_saif%7C1712734566%7C9gW9Nql6terZXcJQX7AWTDZFTHtNegtt4ZTIZyYfZEV%7C76cc0b3cf90d8b2a52d266396168749ed73f83aebb4540cd6040882fb7b3ad37'
 
         self.logger.info("Start scraping: %s",START_PAGE )
 
@@ -47,56 +50,56 @@ class HumphreyBrokenLinkSpider(scrapy.Spider):
             'cookies' : cookies
         }, errback=self.handle_error,cookies=cookies)
 
-    def run_selenium(self):
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.chrome.service import Service
-        from selenium.webdriver.chrome.options import Options
-        from selenium_recaptcha_solver import RecaptchaSolver
-        from time import sleep
-        s = Service('/usr/local/bin/chromedriver')
+    # def run_selenium(self):
+    #     from selenium import webdriver
+    #     from selenium.webdriver.common.by import By
+    #     from selenium.webdriver.chrome.service import Service
+    #     from selenium.webdriver.chrome.options import Options
+    #     from selenium_recaptcha_solver import RecaptchaSolver
+    #     from time import sleep
+    #     s = Service('/usr/local/bin/chromedriver')
 
-        driver = webdriver.Chrome(service=s)
+    #     driver = webdriver.Chrome(service=s)
 
-        login_page_link = START_PAGE+'login/'
+    #     login_page_link = START_PAGE+'login/'
 
-        #print(login_page_link)
+    #     #print(login_page_link)
 
-        driver.get(login_page_link)
+    #     driver.get(login_page_link)
         
 
-        # username = '' #add user name here
-        # password = '' #add password here
+    #     # username = '' #add user name here
+    #     # password = '' #add password here
         
 
-        # usernamebox= driver.find_element(by=By.ID, value="user") #user user_login
-        # usernamebox.send_keys(username)
+    #     # usernamebox= driver.find_element(by=By.ID, value="user") #user user_login
+    #     # usernamebox.send_keys(username)
 
-        # passwordbox= driver.find_element(by=By.ID, value="pass") #pass user_pass
-        # passwordbox.send_keys(password)
+    #     # passwordbox= driver.find_element(by=By.ID, value="pass") #pass user_pass
+    #     # passwordbox.send_keys(password)
 
-        # # solver = RecaptchaSolver(driver=driver)
-        # # recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
-        # # solver.click_recaptcha_v2(iframe=recaptcha_iframe)
-
-
-        sleep(30)
-
-        login = driver.find_element(by=By.ID, value="wp-submit")
-        login.click()
-        sleep(5)
+    #     # # solver = RecaptchaSolver(driver=driver)
+    #     # # recaptcha_iframe = driver.find_element(By.XPATH, '//iframe[@title="reCAPTCHA"]')
+    #     # # solver.click_recaptcha_v2(iframe=recaptcha_iframe)
 
 
-        my_account_element = driver.find_element(By.CSS_SELECTOR, "#wp-admin-bar-my-account")
+    #     sleep(30)
+
+    #     login = driver.find_element(by=By.ID, value="wp-submit")
+    #     login.click()
+    #     sleep(5)
+
+
+    #     my_account_element = driver.find_element(By.CSS_SELECTOR, "#wp-admin-bar-my-account")
    
-        if my_account_element:
-            print("Login Successful")
-        else:
-            print("Login Failed")
+    #     if my_account_element:
+    #         print("Login Successful")
+    #     else:
+    #         print("Login Failed")
 
-        cookies= driver.get_cookies()
-        print(cookies)
-        return cookies
+    #     cookies= driver.get_cookies()
+    #     print(cookies)
+    #     return cookies
 
     def parse(self, response, source, text, site, cookies):
         if response.status != 200:
