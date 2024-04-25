@@ -2,6 +2,7 @@ import scrapy
 from scraper_helper import headers, run_spider
 from urllib.parse import urlparse
 import csv
+import re
 
 
 csv_file = 'sites.csv'
@@ -82,6 +83,18 @@ class FindBrokenSpider(scrapy.Spider):
         if b'text' not in content_type:
             #self.logger.info(f'{response.url} is NOT HTML')
             return  # do not process further if not HTML
+        
+        shortcodes = re.findall(r'\[(.*?)\]', response.text)
+        for shortcode in shortcodes:
+            item = dict()
+            item["Site Name"] = site
+            item["Source_Page"] = response.url
+            item["Link_Text"] = shortcode
+            item["Broken_Page_Link"] = 'shortcode'
+            item["HTTP_Code"] = 'NA'
+            item["External"] = False #not follow_this_domain(response.url)
+
+
 
         for a in response.xpath('//a'):
             link_text = a.xpath('./text()').get()
