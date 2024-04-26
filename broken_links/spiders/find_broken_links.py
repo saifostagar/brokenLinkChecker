@@ -84,7 +84,7 @@ class FindBrokenSpider(scrapy.Spider):
             #self.logger.info(f'{response.url} is NOT HTML')
             return  # do not process further if not HTML
         
-        shortcodes = re.findall(r'\[(.*?)\]', response.text)
+        shortcodes = re.findall(r'\[(recent-posts)\]', response.text)
         for shortcode in shortcodes:
             item = dict()
             item["Site Name"] = site

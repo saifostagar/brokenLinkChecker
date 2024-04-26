@@ -33,6 +33,3 @@ jobs:
     
     - name: Run Broken Links
       run: scrapy crawl find_broken_links
-  
-    - name: Run Broken Image
-      run: scrapy crawl find_broken_img_and_missing_alt
