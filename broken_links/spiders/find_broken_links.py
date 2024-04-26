@@ -93,6 +93,7 @@ class FindBrokenSpider(scrapy.Spider):
             item["Broken_Page_Link"] = 'shortcode'
             item["HTTP_Code"] = 'NA'
             item["External"] = False #not follow_this_domain(response.url)
+            yield item
 
 
 
